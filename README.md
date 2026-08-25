@@ -2,6 +2,8 @@
 
 This repo contains a **from-scratch research pipeline** for a levered volatility-target overlay on a 2-asset portfolio (default: SPY/TLT 50/50), with an emphasis on **implementation realism** rather than idealized backtests.
 
+**Demo output: see demo_output/report.md**
+
 The script produces a full `report.md` with plots and tables, including:
 - Base benchmark (no leverage)
 - Best-case benchmark (no costs, no margin)
