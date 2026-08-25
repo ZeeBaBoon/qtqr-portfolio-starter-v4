@@ -26,6 +26,11 @@ This repo is a compact template to test whether an overlay survives those fricti
 ```bash
 pip install numpy pandas matplotlib yfinance tabulate
 ```
+### Run
+```bash
+python qtqr_pipeline.py
+```
+
 ## Reusability: change tickers + weights (and the regime driver)
 
 This pipeline is designed to run on any **2‑asset universe**.
