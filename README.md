@@ -28,7 +28,7 @@ pip install numpy pandas matplotlib yfinance tabulate
 ```
 ### Run
 ```bash
-python qtqr_pipeline.py
+py qtqr_pipeline.py
 ```
 
 ## Reusability: change tickers + weights (and the regime driver)
