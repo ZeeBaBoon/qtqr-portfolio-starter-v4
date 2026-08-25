@@ -28,14 +28,14 @@ pip install numpy pandas matplotlib yfinance tabulate
 ```
 ### Run
 ```bash
-py qtqr_pipeline.py
+py lev_vol_target.py
 ```
 
 ## Reusability: change tickers + weights (and the regime driver)
 
 This pipeline is designed to run on any **2‑asset universe**.
 
-To change inputs, edit the `Universe` config in `qtqr_pipeline.py`:
+To change inputs, edit the `Universe` config in `lev_vol_target.py`:
 - `tickers`: a tuple of two tickers (example: `("QQQ", "TLT")`)
 - `base_weights`: matching weights that sum to 1 (example: `(0.60, 0.40)`)
 
