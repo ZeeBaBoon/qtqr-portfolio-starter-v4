@@ -347,10 +347,12 @@ def simulate_account(
 
     for i, t in enumerate(idx):
         if (i == 0) or ((i + 1) % 252 == 0) or (i + 1 == n):  # logs ~ once per year, plus first/last
-        elapsed = time.perf_counter() - t0
-        rate = elapsed / max(i + 1, 1)
-        eta = rate * (n - (i + 1))
-        logging.info(f"[simulate_account] {label} {i+1}/{n} ({(i+1)/n:.1%}) | elapsed {elapsed:.1f}s | ETA {eta:.1f}s")
+          elapsed = time.perf_counter() - t0
+          rate = elapsed / max(i + 1, 1)
+          eta = rate * (n - (i + 1))
+          logging.info(
+              f"[simulate_account] {label} {i+1}/{n} ({(i+1)/n:.1%}) | elapsed {elapsed:.1f}s | ETA {eta:.1f}s"
+          )
 
         # --- Start of day: trade to target ---
         lev_t = float(lev_exec.loc[t])
