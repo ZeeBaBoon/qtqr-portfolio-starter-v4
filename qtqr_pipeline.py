@@ -46,11 +46,30 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import time
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(message)s")
+
+
+def progress(i: int, n: int, label: str = "", every: int = 1, t0: float | None = None):
+    if n <= 0:
+        return
+    if (i == 0) or ((i + 1) % every == 0) or (i + 1 == n):
+        msg = f"{label} {i+1}/{n} ({(i+1)/n:.1%})"
+        if t0 is not None and i > 0:
+            elapsed = time.perf_counter() - t0
+            rate = elapsed / (i + 1)
+            eta = rate * (n - (i + 1))
+            msg += f" | elapsed {elapsed:.1f}s | ETA {eta:.1f}s"
+        logging.info(msg)
 
 # =========================
 # Data
 # =========================
 def download_prices_yf(tickers: List[str], start: str, end: Optional[str]) -> pd.DataFrame:
+    t0 = time.perf_counter() 
+    logging.info(f"Downloading prices from yfinance | tickers={tickers} | start={start} | end={end}")
     import yfinance as yf  # type: ignore
     df = yf.download(
         tickers,
@@ -60,6 +79,9 @@ def download_prices_yf(tickers: List[str], start: str, end: Optional[str]) -> pd
         progress=False,
         group_by="column",
     )
+
+    logging.info(f"yfinance raw shape: {df.shape}")
+
     if isinstance(df.columns, pd.MultiIndex):
         if "Close" in df.columns.get_level_values(0):
             px = df["Close"].copy()
@@ -74,6 +96,10 @@ def download_prices_yf(tickers: List[str], start: str, end: Optional[str]) -> pd
 
     px = px.dropna(how="all").dropna()
     px = px[[c for c in tickers if c in px.columns]]
+
+    dt = time.perf_counter() - t0  # NEW
+    logging.info(f"Download complete | final px shape={px.shape} | took {dt:.2f}s")  # NEW
+ 
     return px
 
 
@@ -284,6 +310,9 @@ def simulate_account(
     """
     idx = rets.index
     r = rets[tradable_cols].copy()
+    t0 = time.perf_counter()
+    n = len(idx)
+    logging.info(f"[simulate_account START] {label} | days={n} | monthly_rebalance={monthly_rebalance} | charge_costs={charge_costs} | apply_margin={apply_margin}")
 
     # One-day lag on leverage target
     lev_exec = lev_target_series.shift(1).reindex(idx).fillna(0.0)
@@ -316,7 +345,13 @@ def simulate_account(
 
     prev_exec_lev = float(lev_exec.iloc[0]) if len(lev_exec) else 0.0
 
-    for t in idx:
+    for i, t in enumerate(idx):
+        if (i == 0) or ((i + 1) % 252 == 0) or (i + 1 == n):  # logs ~ once per year, plus first/last
+        elapsed = time.perf_counter() - t0
+        rate = elapsed / max(i + 1, 1)
+        eta = rate * (n - (i + 1))
+        logging.info(f"[simulate_account] {label} {i+1}/{n} ({(i+1)/n:.1%}) | elapsed {elapsed:.1f}s | ETA {eta:.1f}s")
+
         # --- Start of day: trade to target ---
         lev_t = float(lev_exec.loc[t])
         lev_t = max(0.0, min(lev_t, max_init_lev))  # initial margin cap pre-trade
@@ -434,6 +469,9 @@ def simulate_account(
         "rebalance_flag": reb_flag,
         "lev_exec": lev_exec,
     }
+
+    logging.info(f"[simulate_account DONE ] {label} | took {time.perf_counter() - t0:.2f}s")
+
     return out
 
 
