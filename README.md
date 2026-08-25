@@ -25,18 +25,18 @@ This repo is a compact template to test whether an overlay survives those fricti
 ### Install
 ```bash
 pip install numpy pandas matplotlib yfinance tabulate
+```
+## Reusability: change tickers + weights (and the regime driver)
 
-## Reusability: changing tickers, weights, and the regime “decision driver”
+This pipeline is designed to run on any **2‑asset universe**.
 
-This pipeline is reusable for other **2‑asset universes**.
+To change inputs, edit the `Universe` config in `qtqr_pipeline.py`:
+- `tickers`: a tuple of two tickers (example: `("QQQ", "TLT")`)
+- `base_weights`: matching weights that sum to 1 (example: `(0.60, 0.40)`)
 
-To change the universe, edit the `Universe` configuration in `qtqr_pipeline.py`:
-- `tickers`: a tuple of two tickers, e.g. `("QQQ", "TLT")`
-- `base_weights`: the corresponding fixed weights, e.g. `(0.60, 0.40)`
+**Regime driver:** the script uses the **first ticker** as the MA regime signal (risk-on/risk-off).  
+Examples:
+- `("SPY", "TLT")` → SPY drives the regime gate  
+- `("QQQ", "TLT")` → QQQ drives the regime gate  
 
-**Important:** the script treats the **first ticker** as the **regime decision driver** for the MA gate (risk-on/risk-off).  
-Example:
-- `tickers=("SPY","TLT")` → SPY drives the MA regime gate
-- `tickers=("QQQ","TLT")` → QQQ drives the MA regime gate
-
-If you change tickers, make sure the first ticker is the asset whose trend you want to define regime state. Financing rates, liquidity, and broker margin requirements can vary by instrument; update `Costs(...)` and `Margin(...)` accordingly when modeling other assets.
+When changing assets, consider adjusting `Costs(...)` and `Margin(...)` to reflect instrument-specific financing, liquidity, and broker rules.
